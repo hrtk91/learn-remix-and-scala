@@ -8,7 +8,16 @@
 
 ### 前提条件
 
-[Docker](https://www.docker.com/products/docker-desktop)および[Docker Compose](https://docs.docker.com/compose/install/)がインストールされている。
+- [Git](https://git-scm.com/downloads)がインストールされている。
+- [Docker](https://www.docker.com/products/docker-desktop)および[Docker Compose](https://docs.docker.com/compose/install/)がインストールされている。
+
+### リポジトリのクローン
+
+以下のコマンドでリポジトリをクローンしてください：
+
+```bash
+git clone https://github.com/hrtk91/learn-scala.git
+```
 
 ### アプリケーションの実行
 
@@ -18,10 +27,10 @@
 docker-compose up --build
 ```
 
-アプリケーションが起動したら、ブラウザで以下の URL にアクセスしてください：
+アプリケーションが起動したら、以下の URL に GET リクエストを行ってください：
 
 ```
-http://localhost:5000
+http://localhost:5000/students?facilitator_id=1
 ```
 
 ## API 仕様

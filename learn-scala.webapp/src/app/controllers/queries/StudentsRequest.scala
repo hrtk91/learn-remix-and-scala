@@ -2,24 +2,7 @@ package controllers.queries
 
 import play.api.mvc._
 import play.api.libs.json._
-
-/** ソートキーEnum
-  *
-  * @param value
-  *   name | loginId
-  */
-enum SortKeys(val value: String):
-  case name extends SortKeys("name")
-  case loginId extends SortKeys("loginId")
-
-/** オーダーキーEnum
-  *
-  * @param value
-  *   asc | desc
-  */
-enum OrderKeys(val value: String):
-  case asc extends OrderKeys("asc")
-  case desc extends OrderKeys("desc")
+import controllers.queries.constants._
 
 /** 生徒一覧取得リクエスト
   *
@@ -92,16 +75,29 @@ implicit def queryStringBindable(implicit
         case None            => return Some(Left("facilitator_id is required"))
       }
 
+      // pageは正の数のみ
       val page = intBinder.bind("page", params) match {
-        case Some(Right(p)) => p
-        case Some(Left(e))  => return Some(Left("page is invalid"))
-        case None           => 1
+        case Some(Right(p)) =>
+          p match {
+            case p if p < 1 => return Some(Left("page must be greater than 0"))
+            case _          => p
+          }
+        case Some(Left(e)) => return Some(Left("page is invalid"))
+        case None          => 1
       }
+
+      // limitは正の数のみ
       val limit = intBinder.bind("limit", params) match {
-        case Some(Right(l)) => l
-        case Some(Left(e))  => return Some(Left("limit is invalid"))
-        case None           => 10
+        case Some(Right(l)) =>
+          l match {
+            case l if l < 1 => return Some(Left("limit must be greater than 0"))
+            case _          => l
+          }
+        case Some(Left(e)) => return Some(Left("limit is invalid"))
+        case None          => 10
       }
+
+      // sortはnameかloginIdのみ。指定がない場合はname
       val sort = stringBinder
         .bind("sort", params) match {
         case Some(Right(s)) =>
@@ -113,6 +109,8 @@ implicit def queryStringBindable(implicit
         case Some(Left(se)) => return Some(Left("sort is invalid"))
         case None           => SortKeys.name
       }
+
+      // orderはascかdescのみ。指定がない場合はasc
       val order =
         stringBinder.bind("order", params) match {
           case Some(Right(o)) =>
@@ -124,18 +122,34 @@ implicit def queryStringBindable(implicit
           case Some(Left(e)) => return Some(Left("order is invalid"))
           case None          => OrderKeys.asc
         }
+
+      // nameLikeは255文字以内(英数字基準)
       val nameLike =
         stringBinder.bind("name_like", params) match {
-          case Some(Right(n)) => Some(n)
-          case Some(Left(e))  => return Some(Left("name_like is invalid"))
-          case None           => None
+          case Some(Right(n)) =>
+            n match {
+              case n if n.length > 255 =>
+                return Some(Left("name_like must be less than 255 characters"))
+              case _ => Some(n)
+            }
+          case Some(Left(e)) => return Some(Left("name_like is invalid"))
+          case None          => None
         }
+
+      // loginIdLikeは255文字以内(英数字基準)
       val loginIdLike =
         stringBinder
           .bind("loginId_like", params) match {
-          case Some(Right(l)) => Some(l)
-          case Some(Left(e))  => return Some(Left("loginId_like is invalid"))
-          case None           => None
+          case Some(Right(l)) =>
+            l match {
+              case l if l.length > 255 =>
+                return Some(
+                  Left("loginId_like must be less than 255 characters")
+                )
+              case _ => Some(l)
+            }
+          case Some(Left(e)) => return Some(Left("loginId_like is invalid"))
+          case None          => None
         }
 
       // StudentsRequestのインスタンスを生成

@@ -34,4 +34,4 @@ COPY --from=build /app/target/universal/stage /app
 
 RUN chmod +x /app/bin/learn-scala-play
 
-ENTRYPOINT ["/app/bin/learn-scala-play"]
+ENTRYPOINT ["/app/bin/learn-scala-play", "-Dplay.evolutions.db.default.autoApply=true"]

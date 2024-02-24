@@ -9,7 +9,9 @@ services:
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DATABASE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       APPLICATION_SECRET: ${APPLICATION_SECRET}
       PLAY_HTTP_PORT: ${PLAY_HTTP_PORT}
     networks:
@@ -25,14 +27,13 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    # volumes:
+    #   - postgres_data:/var/lib/postgresql/data
     networks:
       - app-network
 
 networks:
   app-network:
     driver: bridge
-
-volumes:
-  postgres_data:
+# volumes:
+#   postgres_data:
