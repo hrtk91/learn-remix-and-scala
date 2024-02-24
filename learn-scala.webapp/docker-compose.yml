@@ -1,0 +1,38 @@
+version: "3.8"
+services:
+  webapp:
+    build: .
+    # volumes:
+    #   - ./src:/app
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      APPLICATION_SECRET: ${APPLICATION_SECRET}
+      PLAY_HTTP_PORT: ${PLAY_HTTP_PORT}
+    networks:
+      - app-network
+    tty: true
+    stdin_open: true
+
+  db:
+    image: postgres:16.2
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

@@ -1,0 +1,37 @@
+# --------------------------------------
+# ベースステージ
+FROM amazoncorretto:21 as base
+
+RUN yum install -y tar gzip
+
+# ワークディレクトリ
+WORKDIR /app
+
+# --------------------------------------
+# ビルドステージ
+FROM base as build
+
+# sbt version
+ARG SBT_VERSION=1.9.8
+
+# Scalaとsbtのインストール
+RUN rm -f /etc/yum.repos.d/bintray-rpm.repo && \
+    curl -L https://www.scala-sbt.org/sbt-rpm.repo > sbt-rpm.repo && \
+    mv sbt-rpm.repo /etc/yum.repos.d/ && \
+    yum install -y sbt-$SBT_VERSION
+
+# ホストのファイルをコンテナにコピー
+COPY ./src /app
+
+# 実行形式作成
+RUN sbt stage
+
+# -------------------------------------
+# 実行ステージ
+FROM base as run
+
+COPY --from=build /app/target/universal/stage /app
+
+RUN chmod +x /app/bin/learn-scala-play
+
+ENTRYPOINT ["/app/bin/learn-scala-play"]
