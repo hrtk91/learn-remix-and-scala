@@ -66,3 +66,25 @@ GET /students
   "totalCount": 1
 }
 ```
+
+## アーキテクチャ
+
+### 構成図
+
+![構成図](./architecture.png)
+
+### 採用技術
+
+| 項目                                                                       | バージョン | 説明                               |
+| -------------------------------------------------------------------------- | ---------- | ---------------------------------- |
+| [Scala](https://www.scala-lang.org/)                                       | 3.3.1      | プログラミング言語                 |
+| [Play Framework](https://www.playframework.com/)                           | 3.0.1      | Web アプリケーションフレームワーク |
+| [Evolutions](https://www.playframework.com/documentation/2.8.x/Evolutions) | 3.0.1      | データベースのマイグレーション     |
+| [anorm](https://www.playframework.com/documentation/2.8.x/ScalaAnorm)      | 2.7.0      | データベースアクセス               |
+
+※ バージョン確認方法
+
+```bash
+sbt shell
+libraryDependencies
+```
