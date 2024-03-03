@@ -44,6 +44,9 @@ export default function Index() {
             onPointerUp: () => setSelectedColumn("loginId"),
             selected: selectedColumn === "loginId",
           },
+          {
+            /** 空列 */
+          },
         ]}
         items={data}
         limit={3}

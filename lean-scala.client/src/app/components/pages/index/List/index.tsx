@@ -11,8 +11,8 @@ import { AngleLeft } from "~/components/UI/Icons/AngleLeft";
 import { AngleRight } from "~/components/UI/Icons/AngleRight";
 
 export type ListColumnProps<T extends Record<string, ReactNode>> = {
-  displayName: string;
-  itemKey: keyof T;
+  displayName?: string;
+  itemKey?: keyof T;
   onPointerUp?: (ev: React.PointerEvent<HTMLButtonElement>) => void;
   selected?: boolean;
 };
@@ -45,28 +45,29 @@ export const List = <T extends Record<string, ReactNode>>({
     [[]] as T[][],
   );
   const [currentPage, setCurrentPage] = useState(1);
-  console.log("items.length: ", items.length);
-  console.log("chunks.length:", chunks.length);
 
   const rows = chunks[currentPage - 1].map((i) =>
-    columns.map((c) => i[c.itemKey]),
+    columns.map(({ itemKey }) => (itemKey != null ? i[itemKey] : "")),
   );
   return (
     <div id="list" className="flex grow flex-col">
       <div id="list-header" className="flex">
-        {columns.map((c) => (
+        {columns.map((c, idx) => (
           <Column
-            key={c.itemKey.toString()}
+            key={idx}
             onPointerUp={(ev) => {
               c.onPointerUp?.(ev);
             }}
             secondary={!c.selected}
           >
-            <span className="grow text-left text-xs">{c.displayName}</span>
-            <AngleDown fillOpacity={c.selected ? 1 : 0.5} />
+            {c.displayName && (
+              <>
+                <span className="grow text-left text-xs">{c.displayName}</span>
+                <AngleDown fillOpacity={c.selected ? 1 : 0.5} />
+              </>
+            )}
           </Column>
         ))}
-        <Column secondary />
       </div>
       <div id="list-body" className="flex grow flex-col">
         {rows.map((row, idx) => (
@@ -107,13 +108,13 @@ export const List = <T extends Record<string, ReactNode>>({
                   Math.min(Math.max(currentPage + 2, 5), chunks.length),
                 )
                 .map((pageNumber) => (
-                <Page
+                  <Page
                     key={pageNumber}
                     num={pageNumber}
                     selected={pageNumber === currentPage}
-                  onPointerUp={(pageNumber) => setCurrentPage(pageNumber)}
-                />
-              ))}
+                    onPointerUp={(pageNumber) => setCurrentPage(pageNumber)}
+                  />
+                ))}
               <div
                 className={`mx-1 ${styles.next} ${currentPage === chunks.length ? "opacity-30" : ""}`}
               >
