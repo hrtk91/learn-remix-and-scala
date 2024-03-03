@@ -59,6 +59,7 @@ export const List = <T extends Record<string, ReactNode>>({
               c.onPointerUp?.(ev);
             }}
             secondary={!c.selected}
+            empty={!c.displayName}
           >
             {c.displayName && (
               <>
@@ -89,6 +90,7 @@ export const List = <T extends Record<string, ReactNode>>({
                 className={`mx-2 ${styles.back} ${currentPage === 1 ? "opacity-30" : ""}`}
               >
                 <button
+                  aria-label="prev-page"
                   type="button"
                   className="flex h-full w-full items-center justify-center"
                   disabled={currentPage === 1}
@@ -119,6 +121,7 @@ export const List = <T extends Record<string, ReactNode>>({
                 className={`mx-1 ${styles.next} ${currentPage === chunks.length ? "opacity-30" : ""}`}
               >
                 <button
+                  aria-label="next-page"
                   type="button"
                   className="flex h-full w-full items-center justify-center"
                   disabled={currentPage === chunks.length}
@@ -144,18 +147,25 @@ type ColumnProps = DetailedHTMLProps<
   HTMLButtonElement
 > & {
   secondary?: boolean;
+  empty?: boolean;
 };
 
-const Column = ({ secondary = false, ...props }: ColumnProps) => {
+const Column = ({
+  secondary = false,
+  empty = false,
+  ...props
+}: ColumnProps) => {
   return (
     <div
       className={`${styles.column} ${secondary ? styles.columnSecondary : ""} w-4/12`}
     >
-      <button
-        type="button"
-        className={`inline-flex h-full w-full text-white`}
-        {...props}
-      />
+      {!empty && (
+        <button
+          type="button"
+          className={`inline-flex h-full w-full text-white`}
+          {...props}
+        />
+      )}
     </div>
   );
 };

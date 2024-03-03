@@ -1,10 +1,43 @@
-import { json, type LoaderFunction, type MetaFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import {
+  LoaderFunctionArgs,
+  json,
+  type LoaderFunction,
+  type MetaFunction,
+} from "@remix-run/node";
+import {
+  useLoaderData,
+  useNavigation,
+  useSearchParams,
+} from "@remix-run/react";
 import { useState } from "react";
+import { Loading } from "~/components/UI/Loading";
 import { List } from "~/components/pages/index/List";
 import { SearchForm } from "~/components/pages/index/SearchForm";
 
-const baseUrl = new URL("https://us-central1-compass-hr.cloudfunctions.net");
+export const BASE_URL = new URL(
+  "https://us-central1-compass-hr.cloudfunctions.net",
+);
+
+const SEARCH_KEYS = [
+  "_page" as const,
+  "_limit" as const,
+  "_sort" as const,
+  "_order" as const,
+  "name_like" as const,
+  "loginId_like" as const,
+];
+
+function k(key: (typeof SEARCH_KEYS)[number]) {
+  return key;
+}
+
+const LIMIT = 20;
+
+export type ApiResponseData = {
+  id: string;
+  name: string;
+  loginId: string;
+};
 
 export const meta: MetaFunction = () => {
   return [
@@ -13,16 +46,40 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export const loader: LoaderFunction = async () => {
-  // 初期表示のデータを取得
-  const resp = await fetch(baseUrl + "mock/facilitators").then((r) => r.json());
-  return json(resp);
-};
+export const loader: LoaderFunction = async ({
+  request: { url },
+}: LoaderFunctionArgs) => {
+  console.log("loader started");
+  const searchParams = new URL(url).searchParams;
+  const reqUrl = new URL(`${BASE_URL}mock/facilitators`);
 
-type ApiResponseData = {
-  id: string;
-  name: string;
-  loginId: string;
+  if (searchParams.get("word")) {
+    reqUrl.searchParams.set(k("name_like"), searchParams.get("word")!);
+    reqUrl.searchParams.set(k("loginId_like"), searchParams.get("word")!);
+  }
+
+  if (searchParams.get("_limit")) {
+    reqUrl.searchParams.set(
+      k("_limit"),
+      searchParams.get("_limit") || LIMIT.toString(),
+    );
+  }
+
+  if (searchParams.get("_page")) {
+    reqUrl.searchParams.set(k("_page"), searchParams.get("_page") || "1");
+  }
+
+  if (searchParams.get("_sort")) {
+    reqUrl.searchParams.set(k("_sort"), searchParams.get("_sort") || "name");
+  }
+
+  if (searchParams.get("_order")) {
+    reqUrl.searchParams.set(k("_order"), searchParams.get("_order") || "name");
+  }
+
+  // 初期表示のデータを取得
+  const resp = await fetch(reqUrl).then((r) => r.json());
+  return json(resp);
 };
 
 export default function Index() {
@@ -30,6 +87,11 @@ export default function Index() {
   const [selectedColumn, setSelectedColumn] = useState<
     "name" | "loginId" | undefined
   >();
+
+  const [searchParams] = useSearchParams();
+
+  const { state } = useNavigation();
+
   return (
     <main className="mx-auto flex h-full flex-col px-4 md:container">
       <SearchForm />
@@ -52,8 +114,9 @@ export default function Index() {
           },
         ]}
         items={data}
-        limit={3}
+        limit={Number(searchParams.get("_limit")) || LIMIT}
       />
+      <Loading open={state === "loading" || state === "submitting"} />
     </main>
   );
 }

@@ -14,3 +14,34 @@
     outline: none;
   }
 }
+
+.circular-progress {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  position: relative;
+  background-color: transparent;
+  border: 10px solid #f3f3f3;
+}
+
+.circular-progress::before {
+  content: "";
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 10px solid transparent;
+  border-top-color: rgb(124, 224, 114);
+  /* border-right-color: rgb(124, 224, 114); */
+
+  /* animation: spin 1s ease-in-out infinite; */
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
