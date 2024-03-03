@@ -80,7 +80,7 @@ export const List = <T extends Record<string, ReactNode>>({
         ))}
       </div>
       <div id="list-footer" className="flex justify-start px-2 py-4">
-        <div className="grow text-sm">120件中 1~20件を表示</div>
+        <div className="grow text-sm">{`${items.length}件中 ${Math.max(currentPage * limit - limit, 1)}~${Math.min(currentPage * limit, items.length)}件を表示`}</div>
         <div id="pagination" className="flex">
           {chunks.length > 0 && (
             <>
@@ -100,11 +100,17 @@ export const List = <T extends Record<string, ReactNode>>({
                   <AngleLeft />
                 </button>
               </div>
-              {chunks.map((_, idx) => (
+              {chunks
+                .map((_, idx) => idx + 1)
+                .slice(
+                  Math.max(0, Math.min(currentPage - 3, chunks.length - 5)),
+                  Math.min(Math.max(currentPage + 2, 5), chunks.length),
+                )
+                .map((pageNumber) => (
                 <Page
-                  key={idx}
-                  num={idx + 1}
-                  selected={idx + 1 === currentPage}
+                    key={pageNumber}
+                    num={pageNumber}
+                    selected={pageNumber === currentPage}
                   onPointerUp={(pageNumber) => setCurrentPage(pageNumber)}
                 />
               ))}
