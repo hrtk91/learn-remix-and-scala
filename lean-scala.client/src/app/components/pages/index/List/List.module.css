@@ -1,0 +1,61 @@
+.column {
+  height: 32px;
+  background-color: #24473b;
+}
+
+.column > button {
+  padding: 8px 8px 8px 16px;
+}
+
+.columnSecondary {
+  background-color: #4f6c62;
+}
+
+.row {
+  height: 48px;
+}
+
+.rowEven {
+  background-color: #f8f9f9;
+}
+
+.back {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 48px;
+  height: 24px;
+  border-radius: 4px;
+  background-color: #e9eceb;
+}
+
+.page {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  background-color: #e9eceb;
+}
+
+.pageSelected {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  color: #fff;
+  background-color: #24473b;
+}
+
+.next {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 48px;
+  height: 24px;
+  border-radius: 4px;
+  background-color: #e9eceb;
+}
