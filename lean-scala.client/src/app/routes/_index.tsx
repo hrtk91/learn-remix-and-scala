@@ -1,7 +1,10 @@
-import type { MetaFunction } from "@remix-run/node";
+import { json, type LoaderFunction, type MetaFunction } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import { List } from "~/components/pages/index/List";
 import { SearchForm } from "~/components/pages/index/SearchForm";
+
+const baseUrl = new URL("https://us-central1-compass-hr.cloudfunctions.net");
 
 export const meta: MetaFunction = () => {
   return [
@@ -10,20 +13,20 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+export const loader: LoaderFunction = async () => {
+  // 初期表示のデータを取得
+  const resp = await fetch(baseUrl + "mock/facilitators").then((r) => r.json());
+  return json(resp);
+};
+
+type ApiResponseData = {
+  id: string;
+  name: string;
+  loginId: string;
+};
+
 export default function Index() {
-  const data = [
-    { name: "山田太郎", loginId: "yamada-taro" },
-    { name: "田中花子", loginId: "tanaka-hanako" },
-    { name: "佐藤一郎", loginId: "sato-ichiro" },
-    { name: "鈴木二郎", loginId: "suzuki-jiro" },
-    { name: "高橋三郎", loginId: "takahashi-saburo" },
-    { name: "田村四郎", loginId: "tamura-shiro" },
-    { name: "伊藤五郎", loginId: "ito-goro" },
-    { name: "渡辺六郎", loginId: "watanabe-rokuro" },
-    { name: "山本七郎", loginId: "yamamoto-shichiro" },
-    { name: "中村八郎", loginId: "nakamura-hachiro" },
-    { name: "小林九郎", loginId: "kobayashi-kuro" },
-  ];
+  const data = useLoaderData<ApiResponseData[]>();
   const [selectedColumn, setSelectedColumn] = useState<
     "name" | "loginId" | undefined
   >();
