@@ -15,6 +15,7 @@ export type ListColumnProps<T extends Record<string, ReactNode>> = {
   itemKey?: keyof T;
   onPointerUp?: (ev: React.PointerEvent<HTMLButtonElement>) => void;
   selected?: boolean;
+  sortIcon?: "asc" | "desc";
 };
 
 export type ListProps<T extends Record<string, ReactNode>> = {
@@ -64,7 +65,10 @@ export const List = <T extends Record<string, ReactNode>>({
             {c.displayName && (
               <>
                 <span className="grow text-left text-xs">{c.displayName}</span>
-                <AngleDown fillOpacity={c.selected ? 1 : 0.5} />
+                <AngleDown
+                  className={`${styles["sort-icon"]} ${c.sortIcon === "asc" ? styles.rotate : ""}`}
+                  fillOpacity={c.selected ? 1 : 0.5}
+                />
               </>
             )}
           </Column>
@@ -201,7 +205,12 @@ type PageProps = {
 const Page = ({ num, selected, onPointerUp }: PageProps) => {
   return (
     <div className={`mx-1 ${selected ? styles.pageSelected : styles.page}`}>
-      <button type="button" onPointerUp={() => onPointerUp?.(num)}>
+      <button
+        aria-label={`page-${num}`}
+        className="h-full w-full"
+        type="button"
+        onPointerUp={() => onPointerUp?.(num)}
+      >
         {num}
       </button>
     </div>

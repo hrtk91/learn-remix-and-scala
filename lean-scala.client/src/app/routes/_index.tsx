@@ -6,7 +6,6 @@ import {
   useRouteError,
   useSearchParams,
 } from "@remix-run/react";
-import { useState } from "react";
 import { Dialog } from "~/components/UI/Dialog";
 import { Loading } from "~/components/UI/Loading";
 import { List } from "~/components/pages/index/List";
@@ -80,11 +79,8 @@ export async function loader({ request: { url } }: LoaderFunctionArgs) {
 export default function Index() {
   const error = useRouteError();
   const data = useLoaderData<ApiResponseData[]>() ?? [];
-  const [selectedColumn, setSelectedColumn] = useState<
-    "name" | "loginId" | undefined
-  >();
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const { state } = useNavigation();
 
@@ -97,14 +93,54 @@ export default function Index() {
             {
               displayName: "名前",
               itemKey: "name",
-              onPointerUp: () => setSelectedColumn("name"),
-              selected: selectedColumn === "name",
+              onPointerUp: () => {
+                const sort = searchParams.get(k("_sort"));
+                const order = searchParams.get(k("_order"));
+                if (sort === "name") {
+                  if (order === "asc") {
+                    searchParams.set(k("_order"), "desc");
+                  } else if (order === "desc") {
+                    searchParams.delete(k("_sort"));
+                    searchParams.delete(k("_order"));
+                  }
+                } else {
+                  searchParams.set(k("_sort"), "name");
+                  searchParams.set(k("_order"), "asc");
+                }
+                setSearchParams(searchParams);
+              },
+              selected: searchParams.get(k("_sort")) === "name",
+              sortIcon:
+                searchParams.get(k("_sort")) === "name" &&
+                searchParams.get(k("_order"))
+                  ? (searchParams.get(k("_order")) as "asc" | "desc")
+                  : undefined,
             },
             {
               displayName: "ログインID",
               itemKey: "loginId",
-              onPointerUp: () => setSelectedColumn("loginId"),
-              selected: selectedColumn === "loginId",
+              onPointerUp: () => {
+                const sort = searchParams.get(k("_sort"));
+                const order = searchParams.get(k("_order"));
+                if (sort === "loginId") {
+                  if (order === "asc") {
+                    searchParams.set(k("_order"), "desc");
+                  } else if (order === "desc") {
+                    searchParams.delete(k("_sort"));
+                    searchParams.delete(k("_order"));
+                  }
+                } else {
+                  searchParams.set(k("_sort"), "loginId");
+                  searchParams.set(k("_order"), "asc");
+                }
+                setSearchParams(searchParams);
+              },
+              selected: searchParams.get(k("_sort")) === "loginId",
+              sortIcon:
+                searchParams.get(k("_sort")) === "loginId" &&
+                searchParams.get(k("_order"))
+                  ? (searchParams.get(k("_order")) as "asc" | "desc")
+                  : undefined,
             },
             {
               /** 空列 */
