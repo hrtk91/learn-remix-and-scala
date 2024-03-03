@@ -7,7 +7,7 @@ export type LoadingProps = {
 export const Loading = ({ open }: LoadingProps) => {
   return (
     <div
-      className={`${open ? "visible" : "invisible"} fixed left-0 top-0 flex h-screen w-screen items-center justify-center backdrop-brightness-75`}
+      className={`${open ? "visible" : "invisible"} fixed left-0 top-0 z-50 flex h-screen w-screen items-center justify-center backdrop-blur backdrop-brightness-75`}
     >
       <Spinner />
     </div>

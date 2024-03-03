@@ -1,15 +1,13 @@
+import { LoaderFunctionArgs, json } from "@remix-run/node";
 import {
-  LoaderFunctionArgs,
-  json,
-  type LoaderFunction,
-  type MetaFunction,
-} from "@remix-run/node";
-import {
+  Form,
   useLoaderData,
   useNavigation,
+  useRouteError,
   useSearchParams,
 } from "@remix-run/react";
 import { useState } from "react";
+import { Dialog } from "~/components/UI/Dialog";
 import { Loading } from "~/components/UI/Loading";
 import { List } from "~/components/pages/index/List";
 import { SearchForm } from "~/components/pages/index/SearchForm";
@@ -39,16 +37,14 @@ export type ApiResponseData = {
   loginId: string;
 };
 
-export const meta: MetaFunction = () => {
+export function meta() {
   return [
-    { title: "New Remix App" },
+    { title: "lean-scala.client" },
     { name: "description", content: "Welcome to Remix!" },
   ];
-};
+}
 
-export const loader: LoaderFunction = async ({
-  request: { url },
-}: LoaderFunctionArgs) => {
+export async function loader({ request: { url } }: LoaderFunctionArgs) {
   console.log("loader started");
   const searchParams = new URL(url).searchParams;
   const reqUrl = new URL(`${BASE_URL}mock/facilitators`);
@@ -59,10 +55,7 @@ export const loader: LoaderFunction = async ({
   }
 
   if (searchParams.get("_limit")) {
-    reqUrl.searchParams.set(
-      k("_limit"),
-      searchParams.get("_limit") || LIMIT.toString(),
-    );
+    reqUrl.searchParams.set(k("_limit"), searchParams.get("_limit") ?? "");
   }
 
   if (searchParams.get("_page")) {
@@ -78,12 +71,15 @@ export const loader: LoaderFunction = async ({
   }
 
   // 初期表示のデータを取得
+  // limit指定して要求すると、1ページ当たりの件数が制限されるのでなく、取得できる全件数が制限される
   const resp = await fetch(reqUrl).then((r) => r.json());
+  console.log("resp:", resp);
   return json(resp);
-};
+}
 
 export default function Index() {
-  const data = useLoaderData<ApiResponseData[]>();
+  const error = useRouteError();
+  const data = useLoaderData<ApiResponseData[]>() ?? [];
   const [selectedColumn, setSelectedColumn] = useState<
     "name" | "loginId" | undefined
   >();
@@ -95,28 +91,51 @@ export default function Index() {
   return (
     <main className="mx-auto flex h-full flex-col px-4 md:container">
       <SearchForm />
-      <List
-        columns={[
-          {
-            displayName: "名前",
-            itemKey: "name",
-            onPointerUp: () => setSelectedColumn("name"),
-            selected: selectedColumn === "name",
-          },
-          {
-            displayName: "ログインID",
-            itemKey: "loginId",
-            onPointerUp: () => setSelectedColumn("loginId"),
-            selected: selectedColumn === "loginId",
-          },
-          {
-            /** 空列 */
-          },
-        ]}
-        items={data}
-        limit={Number(searchParams.get("_limit")) || LIMIT}
-      />
+      {data.length ? (
+        <List
+          columns={[
+            {
+              displayName: "名前",
+              itemKey: "name",
+              onPointerUp: () => setSelectedColumn("name"),
+              selected: selectedColumn === "name",
+            },
+            {
+              displayName: "ログインID",
+              itemKey: "loginId",
+              onPointerUp: () => setSelectedColumn("loginId"),
+              selected: selectedColumn === "loginId",
+            },
+            {
+              /** 空列 */
+            },
+          ]}
+          items={data}
+          limit={Number(searchParams.get("_limit")) || LIMIT}
+        />
+      ) : (
+        <span className="pl-4">該当するデータはありません</span>
+      )}
+
       <Loading open={state === "loading" || state === "submitting"} />
+      <Dialog open={!!error}>
+        <Form method="get">
+          <div className="pb-12 text-lg">通信エラーが発生しました。</div>
+          <div className="flex justify-end">
+            <button
+              aria-label="retry-button"
+              type="submit"
+              className="rounded-sm bg-green-600 px-4 py-1 text-sm text-white"
+            >
+              リトライ
+            </button>
+          </div>
+        </Form>
+      </Dialog>
     </main>
   );
+}
+
+export function ErrorBoundary() {
+  return <Index />;
 }
