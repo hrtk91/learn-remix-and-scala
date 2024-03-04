@@ -18,11 +18,11 @@ export const SearchForm = () => {
         method="get"
       >
         <input
-          name="word"
+          name="name_like"
           type="text"
-          placeholder="名前、ログインIDで検索"
+          placeholder="名前で検索"
           className={`${styles.baseFrameInner} h-full w-full border-none focus:outline-none`}
-          defaultValue={searchParams.get("word") ?? undefined}
+          defaultValue={searchParams.get("name_like") ?? undefined}
         />
         <button
           aria-label="search-button"

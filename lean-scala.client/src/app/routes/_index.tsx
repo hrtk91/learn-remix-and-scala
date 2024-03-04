@@ -8,8 +8,9 @@ import {
 } from "@remix-run/react";
 import { Dialog } from "~/components/UI/Dialog";
 import { Loading } from "~/components/UI/Loading";
-import { List } from "~/components/pages/index/List";
-import { SearchForm } from "~/components/pages/index/SearchForm";
+import { List } from "~/components/pages/routes/List";
+import { Pagination } from "~/components/pages/routes/Pagination";
+import { SearchForm } from "~/components/pages/routes/SearchForm";
 
 export const BASE_URL = new URL(
   "https://us-central1-compass-hr.cloudfunctions.net",
@@ -46,109 +47,128 @@ export function meta() {
 export async function loader({ request: { url } }: LoaderFunctionArgs) {
   console.log("loader started");
   const searchParams = new URL(url).searchParams;
-  const reqUrl = new URL(`${BASE_URL}mock/facilitators`);
+  const endpointUrl = `${BASE_URL}mock/facilitators`;
+  const reqUrl = new URL(endpointUrl);
 
-  if (searchParams.get("word")) {
-    reqUrl.searchParams.set(k("name_like"), searchParams.get("word")!);
-    reqUrl.searchParams.set(k("loginId_like"), searchParams.get("word")!);
+  if (searchParams.get("name_like")) {
+    reqUrl.searchParams.set(k("name_like"), searchParams.get("name_like")!);
   }
 
-  if (searchParams.get("_limit")) {
-    reqUrl.searchParams.set(k("_limit"), searchParams.get("_limit") ?? "");
-  }
+  const all: ApiResponseData[] = await fetch(reqUrl).then((r) => r.json());
 
-  if (searchParams.get("_page")) {
-    reqUrl.searchParams.set(k("_page"), searchParams.get("_page") || "1");
-  }
+  // limitの設定
+  reqUrl.searchParams.set(
+    k("_limit"),
+    searchParams.get("_limit") || LIMIT.toString(),
+  );
 
+  // pageの設定
+  reqUrl.searchParams.set(k("_page"), searchParams.get("_page") || "1");
+
+  // sortの設定(指定がある場合)
   if (searchParams.get("_sort")) {
     reqUrl.searchParams.set(k("_sort"), searchParams.get("_sort") || "name");
   }
 
+  // orderの設定(指定がある場合)
   if (searchParams.get("_order")) {
     reqUrl.searchParams.set(k("_order"), searchParams.get("_order") || "name");
   }
 
   // 初期表示のデータを取得
   // limit指定して要求すると、1ページ当たりの件数が制限されるのでなく、取得できる全件数が制限される
-  const resp = await fetch(reqUrl).then((r) => r.json());
-  console.log("resp:", resp);
-  return json(resp);
+  const limited: ApiResponseData[] = await fetch(reqUrl).then((r) => r.json());
+  console.log("limited:", limited);
+  return json({ all, limited });
 }
 
 export default function Index() {
   const error = useRouteError();
-  const data = useLoaderData<ApiResponseData[]>() ?? [];
-
+  const { all, limited } = useLoaderData<typeof loader>() ?? {
+    all: [],
+    limited: [],
+  };
   const [searchParams, setSearchParams] = useSearchParams();
-
   const { state } = useNavigation();
+  const currentPage = Number(searchParams.get(k("_page"))) || 1;
+  const limit = Number(searchParams.get(k("_limit"))) || LIMIT;
 
   return (
     <main className="mx-auto flex h-full flex-col px-4 md:container">
       <SearchForm />
-      {data.length ? (
-        <List
-          columns={[
-            {
-              displayName: "名前",
-              itemKey: "name",
-              onPointerUp: () => {
-                const sort = searchParams.get(k("_sort"));
-                const order = searchParams.get(k("_order"));
-                if (sort === "name") {
-                  if (order === "asc") {
-                    searchParams.set(k("_order"), "desc");
-                  } else if (order === "desc") {
-                    searchParams.delete(k("_sort"));
-                    searchParams.delete(k("_order"));
+      {all.length ? (
+        <>
+          <List
+            columns={[
+              {
+                displayName: "名前",
+                itemKey: "name",
+                onPointerUp: () => {
+                  const sort = searchParams.get(k("_sort"));
+                  const order = searchParams.get(k("_order"));
+                  if (sort === "name") {
+                    if (order === "asc") {
+                      searchParams.set(k("_order"), "desc");
+                    } else if (order === "desc") {
+                      searchParams.delete(k("_sort"));
+                      searchParams.delete(k("_order"));
+                    }
+                  } else {
+                    searchParams.set(k("_sort"), "name");
+                    searchParams.set(k("_order"), "asc");
                   }
-                } else {
-                  searchParams.set(k("_sort"), "name");
-                  searchParams.set(k("_order"), "asc");
-                }
-                setSearchParams(searchParams);
+                  setSearchParams(searchParams);
+                },
+                selected: searchParams.get(k("_sort")) === "name",
+                sortIcon:
+                  searchParams.get(k("_sort")) === "name" &&
+                  searchParams.get(k("_order"))
+                    ? (searchParams.get(k("_order")) as "asc" | "desc")
+                    : undefined,
               },
-              selected: searchParams.get(k("_sort")) === "name",
-              sortIcon:
-                searchParams.get(k("_sort")) === "name" &&
-                searchParams.get(k("_order"))
-                  ? (searchParams.get(k("_order")) as "asc" | "desc")
-                  : undefined,
-            },
-            {
-              displayName: "ログインID",
-              itemKey: "loginId",
-              onPointerUp: () => {
-                const sort = searchParams.get(k("_sort"));
-                const order = searchParams.get(k("_order"));
-                if (sort === "loginId") {
-                  if (order === "asc") {
-                    searchParams.set(k("_order"), "desc");
-                  } else if (order === "desc") {
-                    searchParams.delete(k("_sort"));
-                    searchParams.delete(k("_order"));
+              {
+                displayName: "ログインID",
+                itemKey: "loginId",
+                onPointerUp: () => {
+                  const sort = searchParams.get(k("_sort"));
+                  const order = searchParams.get(k("_order"));
+                  if (sort === "loginId") {
+                    if (order === "asc") {
+                      searchParams.set(k("_order"), "desc");
+                    } else if (order === "desc") {
+                      searchParams.delete(k("_sort"));
+                      searchParams.delete(k("_order"));
+                    }
+                  } else {
+                    searchParams.set(k("_sort"), "loginId");
+                    searchParams.set(k("_order"), "asc");
                   }
-                } else {
-                  searchParams.set(k("_sort"), "loginId");
-                  searchParams.set(k("_order"), "asc");
-                }
-                setSearchParams(searchParams);
+                  setSearchParams(searchParams);
+                },
+                selected: searchParams.get(k("_sort")) === "loginId",
+                sortIcon:
+                  searchParams.get(k("_sort")) === "loginId" &&
+                  searchParams.get(k("_order"))
+                    ? (searchParams.get(k("_order")) as "asc" | "desc")
+                    : undefined,
               },
-              selected: searchParams.get(k("_sort")) === "loginId",
-              sortIcon:
-                searchParams.get(k("_sort")) === "loginId" &&
-                searchParams.get(k("_order"))
-                  ? (searchParams.get(k("_order")) as "asc" | "desc")
-                  : undefined,
-            },
-            {
-              /** 空列 */
-            },
-          ]}
-          items={data}
-          limit={Number(searchParams.get("_limit")) || LIMIT}
-        />
+              {
+                /** 空列 */
+              },
+            ]}
+            items={limited}
+          />
+          <Pagination
+            data={all}
+            countPerPage={limit}
+            currentPage={currentPage}
+            onClickPage={(next) => {
+              searchParams.set(k("_page"), next.toString());
+              searchParams.set(k("_limit"), limit.toString());
+              setSearchParams(searchParams);
+            }}
+          />
+        </>
       ) : (
         <span className="pl-4">該当するデータはありません</span>
       )}
