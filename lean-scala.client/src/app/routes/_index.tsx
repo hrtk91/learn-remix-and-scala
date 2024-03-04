@@ -12,10 +12,6 @@ import { List } from "~/components/pages/routes/List";
 import { Pagination } from "~/components/pages/routes/Pagination";
 import { SearchForm } from "~/components/pages/routes/SearchForm";
 
-export const BASE_URL = new URL(
-  "https://us-central1-compass-hr.cloudfunctions.net",
-);
-
 const SEARCH_KEYS = [
   "_page" as const,
   "_limit" as const,
@@ -47,8 +43,7 @@ export function meta() {
 export async function loader({ request: { url } }: LoaderFunctionArgs) {
   console.log("loader started");
   const searchParams = new URL(url).searchParams;
-  const endpointUrl = `${BASE_URL}mock/facilitators`;
-  const reqUrl = new URL(endpointUrl);
+  const reqUrl = new URL(process.env.API_URL!);
 
   if (searchParams.get("name_like")) {
     reqUrl.searchParams.set(k("name_like"), searchParams.get("name_like")!);
