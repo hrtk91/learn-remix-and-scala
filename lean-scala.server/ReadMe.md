@@ -1,6 +1,6 @@
-# Learn Scala Play Web アプリケーション
+# Learn Scala Play Web API
 
-このプロジェクトは、Scala を使用して Play Framework で構築された Web アプリケーションです。生徒一覧を取得するエンドポイントを提供します。
+このプロジェクトは、Scala を使用して Play Framework で構築された Web API です。生徒一覧を取得するエンドポイントを提供します。
 
 ## ホスティング
 
@@ -21,7 +21,7 @@ git clone https://github.com/hrtk91/learn-scala.git
 
 ### アプリケーションの実行
 
-アプリケーションを起動するには、プロジェクトのルートから以下のコマンドを実行します：
+アプリケーションを起動するには、本 ReadMe と同じディレクトリ(learn-scala.server)から以下のコマンドを実行します：
 
 ```bash
 docker-compose up --build
