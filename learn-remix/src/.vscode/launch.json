@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node-terminal",
+      "request": "launch",
+      "name": "remix dev",
+      "command": "pnpm run dev",
+      "serverReadyAction": {
+        "action": "debugWithChrome",
+        "pattern": "\\[remix-serve\\]\\s*(https?://\\w+:\\d+)",
+        "uriFormat": "%s",
+        "webRoot": "${workspaceFolder}"
+      }
+    }
+  ]
+}

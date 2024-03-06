@@ -1,0 +1,28 @@
+.column {
+  height: 32px;
+  background-color: #24473b;
+}
+
+.column > button {
+  padding: 8px 8px 8px 16px;
+}
+
+.columnSecondary {
+  background-color: #4f6c62;
+}
+
+.sort-icon {
+  transition: transform 0.3s ease;
+}
+
+.rotate {
+  transform: rotate(180deg);
+}
+
+.row {
+  height: 48px;
+}
+
+.rowEven {
+  background-color: #f8f9f9;
+}
