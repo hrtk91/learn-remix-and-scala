@@ -21,7 +21,7 @@ git clone https://github.com/hrtk91/learn-remix-and-scala.git
 
 ### アプリケーションの実行
 
-アプリケーションを起動するには、本 ReadMe と同じディレクトリ(learn-scala.client)から以下のコマンドを実行します：
+アプリケーションを起動するには、本 ReadMe と同じディレクトリ(learn-remix)から以下のコマンドを実行します：
 
 ```bash
 docker-compose up --build
