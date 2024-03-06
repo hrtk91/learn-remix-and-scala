@@ -16,7 +16,7 @@
 以下のコマンドでリポジトリをクローンしてください：
 
 ```bash
-git clone https://github.com/hrtk91/learn-scala.git
+git clone https://github.com/hrtk91/learn-remix-and-scala.git
 ```
 
 ### アプリケーションの実行
