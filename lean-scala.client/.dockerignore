@@ -1,0 +1,6 @@
+src/node_modules
+src/build
+src/.cache
+src/.env
+src/.gitignore
+src/public/build
